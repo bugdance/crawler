@@ -1,0 +1,45 @@
+################## envs ###################
+virtualenvwrapper-win   # virtualenv
+ipython
+flake8
+pypiwin32
+################## base ###################
+requests[socks]     # urllib3 pysocks
+lxml
+cssselect
+pyyaml
+jsonpath 
+demjson
+validators
+pydes
+pycryptodome
+opencv-python
+numpy
+# pillow
+# pyexecjs
+# psutil
+# paramiko
+# jwt
+# itsdangerous
+################## webs ###################
+flask_restful       # flask werkzeug pytz
+flask_compress
+flask_cors
+gunicorn 
+gevent
+mysqlclient
+flask_sqlalchemy    # sqlalchemy
+flask_pymongo       # pymongo
+flask_redis         # redis
+flask_apscheduler   # apscheduler
+django-simpleui     # django pytz
+django-celery-beat  # celery python-crontab python-dateutil django-timezone-field
+django-comment-migrate
+################## test ###################
+pyppeteer==0.2.3    # urllib3 websockets==8.1
+mitmproxy           # flask Werkzeug tornado
+pandas              # numpy pytz python-dateutil
+# pyqt5
+# scrapyd             # scrapy urllib3 websockets lxml cssselect twisted
+# tensorflow==1.14    # numpy
+# torch==1.1          # numpy

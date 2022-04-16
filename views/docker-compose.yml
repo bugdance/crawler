@@ -1,0 +1,16 @@
+# yaml 配置
+version: '3'
+services:
+  views:
+    image: "bugdancer/python39:views"
+    tty: true
+    container_name: views
+    volumes:
+      - /home/lolqq/:/home/
+    working_dir: /home/views
+    command: python3 views_hs.py
+    restart: always
+
+# networks: 
+#   nets:
+#     external: false

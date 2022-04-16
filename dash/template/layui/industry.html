@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>行业分析</title>
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+        <script src="/static/layui/layui.js" charset="utf-8"></script>
+        <script src="/static/echarts/echarts.min.js" charset="utf-8"></script>
+        <script src="/static/jquery/jquery-3.6.0.min.js"></script>
+        <style type="text/css"> </style>
+    </head>
+    <body class="layui-layout-body">
+        <!-- 数字面板 -->
+        <div class="layui-bg-gray" style="padding: 10px;">
+            <!-- 数据说明 -->
+            <div class="layui-inline layui-anim layui-anim-rotate">
+                <button id="notice_button" data-method="notice" class="layui-btn layui-btn-sm layui-btn-radius layui-bg-orange">
+                    <i class="layui-icon layui-icon-about"> 数据说明</i>
+                </button>
+                <!-- 说明弹窗 -->
+                <div class="layui-row" id="notice" style="display:none;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;1. 数据每日0点更新，看板默认展示2020年11月30日至当日0点的数据情况。<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;2. 主要字段说明如下：<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自媒体主：APP端注册用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;广告主：PC端注册用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;账号：APP端入驻/资源管理后台达人账号<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;活跃用户：7日内有访问行为的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;沉默用户：大于7日，小于等于30日内有访问行为的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;流失用户：大于30日没有访问行为的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;唤醒用户：今日由”沉默用户“变为”活跃用户“的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;唤回用户：今日由“流失用户”变成“活跃用户”的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;报名用户：今日有过报名行为的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;合作用户：今日有生成订单的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APP账号：在APP端入驻的账号<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;媒介账号：后台导入但APP端未申领的账号<br>
+                </div>
+            </div>
+            <!-- 日期选项 -->
+            <div class="layui-inline" style="float: right;">
+                <form class="layui-form" action="">
+                    <div class="layui-inline">
+                        <label class="layui-form-label layui-anim layui-anim-down layui-font-20 layui-font-blue">一级行业</label>
+                        <div class="layui-input-inline layui-font-18" style="max-width: 150px;">
+                            <select name="parent" lay-filter="parent">
+                                <option value="1" title="快速消费品" selected=""></option>
+                                <option value="2" title="3c及电器"></option>
+                                <option value="3" title="食品饮料"></option>
+                                <option value="4" title="游戏"></option>
+                                <option value="5" title="零售"></option>
+                                <option value="6" title="工具类软件"></option>
+                                <option value="7" title="服装配饰"></option>
+                                <option value="8" title="汽车"></option>
+                                <option value="9" title="出行旅游"></option>
+                                <option value="10" title="生活服务"></option>
+                                <option value="11" title="房地产"></option>
+                                <option value="12" title="传媒及内容"></option>
+                                <option value="13" title="家居建材"></option>
+                                <option value="14" title="互联网金融"></option>
+                                <option value="15" title="社会公共"></option>
+                                <option value="16" title="商务服务"></option>
+                                <option value="17" title="通信"></option>
+                                <option value="18" title="传统金融业"></option>
+                                <option value="19" title="招商加盟"></option>
+                                <option value="20" title="交通工具"></option>
+                                <option value="21" title="化工及能源"></option>
+                                <option value="22" title="机械设备"></option>
+                                <option value="23" title="物流业"></option>
+                                <option value="24" title="电子电工"></option>
+                                <option value="25" title="农林牧畜渔"></option>
+                                <option value="235" title="教育培训"></option>
+                                <option value="236" title="文体娱乐"></option>
+                                <option value="237" title="餐饮服务"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label layui-anim layui-anim-down layui-font-20 layui-font-blue">二级行业</label>
+                        <div class="layui-input-inline layui-font-18" style="max-width: 150px;">
+                            <select name="child" lay-filter="child">
+                                <option value="0" title="全部" selected=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline layui-anim layui-anim-down" style="font-weight: bold;">
+                        <div class="layui-inline">
+                            <label class="layui-form-label layui-font-20 layui-font-blue">日期范围</label>
+                        </div>
+                        <div class="layui-inline">
+                            <input type="text" autocomplete="off" id="date-range" class="layui-input" placeholder="日期范围">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- 数字组图 -->
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">认证广告主</span>
+                            <br />
+                            <br />
+                            <span id="setAdvert" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">认证品牌主</span>
+                            <br />
+                            <br />
+                            <span id="brdAdvert" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">认证代理商</span>
+                            <br />
+                            <br />
+                            <span id="agtAdvert" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">已发布任务</span>
+                            <br />
+                            <br />
+                            <span id="pubTask" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">招募任务</span>
+                            <br />
+                            <br />
+                            <span id="recTask" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">邀约任务</span>
+                            <br />
+                            <br />
+                            <span id="ivtTask" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <br />
+
+        <!-- 时间趋势与指标对比情况 -->
+        <div class="layui-bg-gray" style="padding: 10px;">
+            <blockquote class="layui-elem-quote layui-quote-nm">
+                <i class="layui-icon layui-icon-chart-screen layui-anim layui-anim-scale layui-font-18"> 时间趋势与指标对比情况</i>
+                <button id="sum_button" data-method="sum_choice" class="layui-btn layui-bg-gray layui-anim layui-anim-scale" style="float: right;">
+                    <i class="layui-icon layui-icon-set-fill layui-font-18"> 切换指标</i>
+                </button>
+            </blockquote>
+            <!-- 指标内容 -->
+            <div class="layui-row layui-col-space10" id="sum_check" style="display:none;">
+                <div class="layui-tab layui-tab-brief">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">广告主指标</li>
+                        <li>任务指标</li>
+                        <li>IM指标</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <form class="layui-form" lay-filter="indusForm" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="sumCount" name="setAdvert" lay-skin="primary" title="认证广告主" />
+                                        <input type="checkbox" class="sumCount" name="brdAdvert" lay-skin="primary" title="认证品牌主" />
+                                        <input type="checkbox" class="sumCount" name="agtAdvert" lay-skin="primary" title="认证代理商" />
+                                        <input type="checkbox" class="sumCount" name="padTask" lay-skin="primary" title="发布任务广告主" />
+                                        <input type="checkbox" class="sumCount" name="useIMAdvert" lay-skin="primary" title="使用IM广告主" />
+                                        <input type="checkbox" class="sumCount" name="staIMAdvert" lay-skin="primary" title="主动发起沟通广告主" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="indusForm" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="sumCount" name="allTask" lay-skin="primary" title="全部任务" />
+                                        <input type="checkbox" class="sumCount" name="onsTask" lay-skin="primary" title="上架任务" />
+                                        <input type="checkbox" class="sumCount" name="offTask" lay-skin="primary" title="下架任务" />
+                                        <input type="checkbox" class="sumCount" name="recTask" lay-skin="primary" title="招募任务" />
+                                        <input type="checkbox" class="sumCount" name="ivtTask" lay-skin="primary" title="邀约任务" />
+                                        <input type="checkbox" class="sumCount" name="prgTask" lay-skin="primary" title="招募/邀约中任务" />
+                                        <input type="checkbox" class="sumCount" name="endTask" lay-skin="primary" title="招募/邀约截止任务" />
+                                        <input type="checkbox" class="sumCount" name="wtaTask" lay-skin="primary" title="待审核任务" />
+                                        <input type="checkbox" class="sumCount" name="excTask" lay-skin="primary" title="执行中任务" />
+                                        <input type="checkbox" class="sumCount" name="pubTask" lay-skin="primary" title="已发布任务" />
+                                        <input type="checkbox" class="sumCount" name="cmpTask" lay-skin="primary" title="已完成任务" />
+                                        <input type="checkbox" class="sumCount" name="clsTask" lay-skin="primary" title="已关闭任务" />
+                                        <input type="checkbox" class="sumCount" name="renTask" lay-skin="primary" title="招募名额" />
+                                        <input type="checkbox" class="sumCount" name="ivtOrder" lay-skin="primary" title="邀约人次" />
+                                        <input type="checkbox" class="sumCount" name="wtaOrder" lay-skin="primary" title="待审核订单" />
+                                        <input type="checkbox" class="sumCount" name="prgOrder" lay-skin="primary" title="邀约中订单" />
+                                        <input type="checkbox" class="sumCount" name="excOrder" lay-skin="primary" title="执行中订单" />
+                                        <input type="checkbox" class="sumCount" name="pubOrder" lay-skin="primary" title="已发布订单" />
+                                        <input type="checkbox" class="sumCount" name="cmpOrder" lay-skin="primary" title="已完成订单" />
+                                        <input type="checkbox" class="sumCount" name="clsOrder" lay-skin="primary" title="已关闭订单" />
+                                        <input type="checkbox" class="sumCount" name="pitTask" lay-skin="primary" title="坑位费+佣金任务数量" />
+                                        <input type="checkbox" class="sumCount" name="pitPrice" lay-skin="primary" title="坑位费金额" />
+                                        <input type="checkbox" class="sumCount" name="cmsTask" lay-skin="primary" title="纯佣金任务数量" />
+                                        <input type="checkbox" class="sumCount" name="sbsTask" lay-skin="primary" title="产品置换任务数量" />
+                                        <input type="checkbox" class="sumCount" name="sbsPrice" lay-skin="primary" title="产品置换任务金额" />
+                                        <input type="checkbox" class="sumCount" name="cosTask" lay-skin="primary" title="产品+费用任务数量" />
+                                        <input type="checkbox" class="sumCount" name="cosPrice" lay-skin="primary" title="产品+费用任务金额" />
+                                        <input type="checkbox" class="sumCount" name="prdGood" lay-skin="primary" title="产品金额" />
+                                        <input type="checkbox" class="sumCount" name="quoTask" lay-skin="primary" title="账号报价任务数量" />
+                                        <input type="checkbox" class="sumCount" name="quoPrice" lay-skin="primary" title="账号报价任务金额" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="indusForm" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="sumCount" name="cmcIMAdvert" lay-skin="primary" title="沟通总数" />
+                                        <input type="checkbox" class="sumCount" name="msgIMAdvert" lay-skin="primary" title="消息总数" />
+                                        <input type="checkbox" class="sumCount" name="urmIMAdvert" lay-skin="primary" title="未读消息数" />
+                                        <input type="checkbox" class="sumCount" name="stcIMAdvert" lay-skin="primary" title="广告主主动发起沟通数" />
+                                        <input type="checkbox" class="sumCount" name="urmIMAdvert" lay-skin="primary" title="广告主未读消息数" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 图表内容 -->
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md4">
+                    <div class="layui-panel layui-anim layui-anim-scale">
+                        <div id="sumChart" style="width: auto;height: 300px;"></div>
+                    </div>
+                </div>
+                <div class="layui-col-md8">
+                    <div class="layui-panel layui-anim layui-anim-scale">
+                        <div id="daysChart" style="width: auto;height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <!-- 各行业对比情况/各领域对比情况 -->
+        <div class="layui-bg-gray" style="padding: 10px;">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md6">
+                    <blockquote class="layui-elem-quote layui-quote-nm">
+                        <i class="layui-icon layui-icon-chart-screen layui-anim layui-anim-scale layui-font-18"> 各行业对比情况</i>
+                        <form class="layui-form" action="" style="float: right;">
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline layui-font-18" style="max-width: 150px;">
+                                    <select name="indus" lay-filter="indus">
+                                        <option value="setAdvert" title="认证广告主" selected=""></option>
+                                        <option value="brdAdvert" title="认证品牌主"></option>
+                                        <option value="agtAdvert" title="认证代理商"></option>
+                                        <option value="padTask" title="发布任务广告主"></option>
+                                        <option value="useIMAdvert" title="使用IM广告主"></option>
+                                        <option value="staIMAdvert" title="主动发起沟通广告主"></option>
+                                        <option value="allTask" title="全部任务"></option>
+                                        <option value="onsTask" title="上架任务"></option>
+                                        <option value="offTask" title="下架任务"></option>
+                                        <option value="recTask" title="招募任务"></option>
+                                        <option value="ivtTask" title="邀约任务"></option>
+                                        <option value="prgTask" title="招募/邀约中任务"></option>
+                                        <option value="endTask" title="招募/邀约截止任务"></option>
+                                        <option value="wtaTask" title="待审核任务"></option>
+                                        <option value="excTask" title="执行中任务"></option>
+                                        <option value="pubTask" title="已发布任务"></option>
+                                        <option value="cmpTask" title="已完成任务"></option>
+                                        <option value="clsTask" title="已关闭任务"></option>
+                                        <option value="renTask" title="招募名额"></option>
+                                        <option value="ivtOrder" title="邀约人次"></option>
+                                        <option value="wtaOrder" title="待审核订单"></option>
+                                        <option value="prgOrder" title="邀约中订单"></option>
+                                        <option value="excOrder" title="执行中订单"></option>
+                                        <option value="pubOrder" title="已发布订单"></option>
+                                        <option value="cmpOrder" title="已完成订单"></option>
+                                        <option value="clsOrder" title="已关闭订单"></option>
+                                        <option value="pitTask" title="坑位费+佣金任务数量"></option>
+                                        <option value="pitPrice" title="坑位费金额"></option>
+                                        <option value="cmsTask" title="纯佣金任务数量"></option>
+                                        <option value="sbsTask" title="产品置换任务数量"></option>
+                                        <option value="sbsPrice" title="产品置换任务金额"></option>
+                                        <option value="cosTask" title="产品+费用任务数量"></option>
+                                        <option value="cosPrice" title="产品+费用任务金额"></option>
+                                        <option value="prdGood" title="产品金额"></option>
+                                        <option value="quoTask" title="账号报价任务数量"></option>
+                                        <option value="quoPrice" title="账号报价任务金额"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </blockquote>
+                    <!-- 图表内容 -->
+                    <div class="layui-panel layui-anim layui-anim-scale">
+                        <div id="indusChart" style="width: auto;height: 300px;"></div>
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <blockquote class="layui-elem-quote layui-quote-nm">
+                        <i class="layui-icon layui-icon-chart-screen layui-anim layui-anim-scale layui-font-18"> 各领域对比情况</i>
+                        <form class="layui-form" action="" style="float: right;">
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline layui-font-18" style="max-width: 150px;">
+                                    <select name="category" lay-filter="category">
+                                        <option value="allTask" title="全部任务" selected=""></option>
+                                        <option value="onsTask" title="上架任务"></option>
+                                        <option value="offTask" title="下架任务"></option>
+                                        <option value="recTask" title="招募任务"></option>
+                                        <option value="ivtTask" title="邀约任务"></option>
+                                        <option value="prgTask" title="招募/邀约中任务"></option>
+                                        <option value="endTask" title="招募/邀约截止任务"></option>
+                                        <option value="wtaTask" title="待审核任务"></option>
+                                        <option value="excTask" title="执行中任务"></option>
+                                        <option value="pubTask" title="已发布任务"></option>
+                                        <option value="cmpTask" title="已完成任务"></option>
+                                        <option value="clsTask" title="已关闭任务"></option>
+                                        <option value="renTask" title="招募名额"></option>
+                                        <option value="ivtOrder" title="邀约人次"></option>
+                                        <option value="wtaOrder" title="待审核订单"></option>
+                                        <option value="prgOrder" title="邀约中订单"></option>
+                                        <option value="excOrder" title="执行中订单"></option>
+                                        <option value="pubOrder" title="已发布订单"></option>
+                                        <option value="cmpOrder" title="已完成订单"></option>
+                                        <option value="clsOrder" title="已关闭订单"></option>
+                                        <option value="pitTask" title="坑位费+佣金任务数量"></option>
+                                        <option value="pitPrice" title="坑位费金额"></option>
+                                        <option value="cmsTask" title="纯佣金任务数量"></option>
+                                        <option value="sbsTask" title="产品置换任务数量"></option>
+                                        <option value="sbsPrice" title="产品置换任务金额"></option>
+                                        <option value="cosTask" title="产品+费用任务数量"></option>
+                                        <option value="cosPrice" title="产品+费用任务金额"></option>
+                                        <option value="prdGood" title="产品金额"></option>
+                                        <option value="quoTask" title="账号报价任务数量"></option>
+                                        <option value="quoPrice" title="账号报价任务金额"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </blockquote>
+                    <!-- 图表内容 -->
+                    <div class="layui-panel layui-anim layui-anim-scale">
+                        <div id="cateChart" style="width: auto;height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <!-- 数据报表 -->
+        <div class="layui-bg-gray layui-anim layui-anim-scale" style="padding: 10px;">
+            <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+            <!-- 指标内容 -->
+            <div class="layui-row layui-col-space10" id="table_check" style="display:none;">
+                <div class="layui-tab layui-tab-brief">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">广告主指标</li>
+                        <li>任务指标</li>
+                        <li>IM指标</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <form class="layui-form" lay-filter="tableForm" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="tableCount" name="setAdvert" lay-skin="primary" title="认证广告主" />
+                                        <input type="checkbox" class="tableCount" name="brdAdvert" lay-skin="primary" title="认证品牌主" />
+                                        <input type="checkbox" class="tableCount" name="agtAdvert" lay-skin="primary" title="认证代理商" />
+                                        <input type="checkbox" class="tableCount" name="padTask" lay-skin="primary" title="发布任务广告主" />
+                                        <input type="checkbox" class="tableCount" name="useIMAdvert" lay-skin="primary" title="使用IM广告主" />
+                                        <input type="checkbox" class="tableCount" name="staIMAdvert" lay-skin="primary" title="主动发起沟通广告主" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="tableForm" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="tableCount" name="allTask" lay-skin="primary" title="全部任务" />
+                                        <input type="checkbox" class="tableCount" name="onsTask" lay-skin="primary" title="上架任务" />
+                                        <input type="checkbox" class="tableCount" name="offTask" lay-skin="primary" title="下架任务" />
+                                        <input type="checkbox" class="tableCount" name="recTask" lay-skin="primary" title="招募任务" />
+                                        <input type="checkbox" class="tableCount" name="ivtTask" lay-skin="primary" title="邀约任务" />
+                                        <input type="checkbox" class="tableCount" name="prgTask" lay-skin="primary" title="招募/邀约中任务" />
+                                        <input type="checkbox" class="tableCount" name="endTask" lay-skin="primary" title="招募/邀约截止任务" />
+                                        <input type="checkbox" class="tableCount" name="wtaTask" lay-skin="primary" title="待审核任务" />
+                                        <input type="checkbox" class="tableCount" name="excTask" lay-skin="primary" title="执行中任务" />
+                                        <input type="checkbox" class="tableCount" name="pubTask" lay-skin="primary" title="已发布任务" />
+                                        <input type="checkbox" class="tableCount" name="cmpTask" lay-skin="primary" title="已完成任务" />
+                                        <input type="checkbox" class="tableCount" name="clsTask" lay-skin="primary" title="已关闭任务" />
+                                        <input type="checkbox" class="tableCount" name="renTask" lay-skin="primary" title="招募名额" />
+                                        <input type="checkbox" class="tableCount" name="ivtOrder" lay-skin="primary" title="邀约人次" />
+                                        <input type="checkbox" class="tableCount" name="wtaOrder" lay-skin="primary" title="待审核订单" />
+                                        <input type="checkbox" class="tableCount" name="prgOrder" lay-skin="primary" title="邀约中订单" />
+                                        <input type="checkbox" class="tableCount" name="excOrder" lay-skin="primary" title="执行中订单" />
+                                        <input type="checkbox" class="tableCount" name="pubOrder" lay-skin="primary" title="已发布订单" />
+                                        <input type="checkbox" class="tableCount" name="cmpOrder" lay-skin="primary" title="已完成订单" />
+                                        <input type="checkbox" class="tableCount" name="clsOrder" lay-skin="primary" title="已关闭订单" />
+                                        <input type="checkbox" class="tableCount" name="pitTask" lay-skin="primary" title="坑位费+佣金任务数量" />
+                                        <input type="checkbox" class="tableCount" name="pitPrice" lay-skin="primary" title="坑位费金额" />
+                                        <input type="checkbox" class="tableCount" name="cmsTask" lay-skin="primary" title="纯佣金任务数量" />
+                                        <input type="checkbox" class="tableCount" name="sbsTask" lay-skin="primary" title="产品置换任务数量" />
+                                        <input type="checkbox" class="tableCount" name="sbsPrice" lay-skin="primary" title="产品置换任务金额" />
+                                        <input type="checkbox" class="tableCount" name="cosTask" lay-skin="primary" title="产品+费用任务数量" />
+                                        <input type="checkbox" class="tableCount" name="cosPrice" lay-skin="primary" title="产品+费用任务金额" />
+                                        <input type="checkbox" class="tableCount" name="prdGood" lay-skin="primary" title="产品金额" />
+                                        <input type="checkbox" class="tableCount" name="quoTask" lay-skin="primary" title="账号报价任务数量" />
+                                        <input type="checkbox" class="tableCount" name="quoPrice" lay-skin="primary" title="账号报价任务金额" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="tableForm" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="tableCount" name="cmcIMAdvert" lay-skin="primary" title="沟通总数" />
+                                        <input type="checkbox" class="tableCount" name="msgIMAdvert" lay-skin="primary" title="消息总数" />
+                                        <input type="checkbox" class="tableCount" name="urmIMAdvert" lay-skin="primary" title="未读消息数" />
+                                        <input type="checkbox" class="tableCount" name="stcIMAdvert" lay-skin="primary" title="广告主主动发起沟通数" />
+                                        <input type="checkbox" class="tableCount" name="urmIMAdvert" lay-skin="primary" title="广告主未读消息数" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <script type="text/html" id="toolbar">
+            <div class="layui-btn-container">
+                <i class="layui-icon layui-icon-table layui-font-18 layui-font-cyan"> 数据报表</i>
+            </div>
+        </script>
+
+        <script type="text/javascript">
+
+            var parentMap = {}, childMap = {}, categoryMap = {}
+            var sumTotal = {}, sumNameList = [], sumSumList = []
+            var daysList = [], daysNameList = [], daysSeriesList = []
+
+            var cateTotal = {}, cateNameList = [], cateSumList = []
+            var indusTotal = {}
+
+            var indusChoiceList = ["prgTask", "endTask"]
+            var tableChoiceList = [
+                "setAdvert", "brdAdvert", "agtAdvert", 
+                "allTask", "recTask", "ivtTask", "cmcIMAdvert", "stcIMAdvert"
+            ]
+            var startDate = "2020-11-01", endDate = "2020-11-02" 
+            
+            function getNow() {
+                var myDate = new Date();
+                myDate.setDate(myDate.getDate() - 1);
+
+                year = myDate.getFullYear()
+                month = myDate.getMonth() + 1
+                day = myDate.getDate()
+                if (month < 10) month = '0' + month;
+                if (day < 10) day = '0' + day;
+                endDate = year + "-" + month + "-" + day
+
+                // myDate.setDate(myDate.getDate() - 30*6);
+
+                // year = myDate.getFullYear()
+                // month = myDate.getMonth() + 1
+                // day = myDate.getDate()
+                // if (month < 10) month = '0' + month;
+                // if (day < 10) day = '0' + day;
+                // startDate = year + "-" + month + "-" + day 
+                
+            }
+
+            layui.use('laydate', function(){
+                var laydate = layui.laydate;
+                //日期范围
+                laydate.render({
+                    elem: '#date-range', theme: '#393D49', showBottom: true, btns: ['confirm'], 
+                    min: '2020-11-01', max: endDate,
+                    range: '~',
+                    value: startDate + ' ~ ' + endDate, isInitValue: true,
+                    done: function(value, start, end){
+                        
+                        year = start["year"]
+                        month = start["month"]
+                        day = start["date"]
+                        if (month < 10) month = '0' + month;
+                        if (day < 10) day = '0' + day;
+
+                        startDate = year + "-" + month + "-" + day
+
+                        year = end["year"]
+                        month = end["month"]
+                        day = end["date"]
+                        if (month < 10) month = '0' + month;
+                        if (day < 10) day = '0' + day;
+
+                        endDate = year + "-" + month + "-" + day                  
+
+                        getData();
+                        putSum(false);
+                        sumView();
+
+                        putIndus();
+                        indusView();
+
+                        putCate();
+                        cateView();
+
+                        putTable(false);
+                    }
+                    
+                });             
+            });
+
+
+            function putSelect() {
+                $("select[name='parent'] option").each(function(i, item){
+                    child_title = $("select[name='parent'] option").eq(i).attr("title");
+                    if (child_title.length > 0) {
+                        if (child_title.length > 5) {
+                            sub_title = child_title.substring(0,5) + "..."
+                            $("select[name='parent'] option").eq(i).text(sub_title);
+                        } else {
+                            $("select[name='parent'] option").eq(i).text(child_title);
+                        }
+                    } 
+                });
+                $("select[name='child'] option").each(function(i, item){
+                    child_title = $("select[name='child'] option").eq(i).attr("title");
+                    if (child_title.length > 0) {
+                        if (child_title.length > 5) {
+                            sub_title = child_title.substring(0,5) + "..."
+                            $("select[name='child'] option").eq(i).text(sub_title);
+                        } else {
+                            $("select[name='child'] option").eq(i).text(child_title);
+                        }
+                    } 
+                });
+                $("select[name='indus'] option").each(function(i, item){
+                    child_title = $("select[name='indus'] option").eq(i).attr("title");
+                    if (child_title.length > 0) {
+                        if (child_title.length > 5) {
+                            sub_title = child_title.substring(0,5) + "..."
+                            $("select[name='indus'] option").eq(i).text(sub_title);
+                        } else {
+                            $("select[name='indus'] option").eq(i).text(child_title);
+                        }
+                    } 
+                });
+
+                $("select[name='category'] option").each(function(i, item){
+                    child_title = $("select[name='category'] option").eq(i).attr("title");
+                    if (child_title.length > 0) {
+                        if (child_title.length > 5) {
+                            sub_title = child_title.substring(0,5) + "..."
+                            $("select[name='category'] option").eq(i).text(sub_title);
+                        } else {
+                            $("select[name='category'] option").eq(i).text(child_title);
+                        }
+                    } 
+                });
+
+            }
+
+            function getBase() {
+                $.ajax({
+                    // url: 'http://127.0.0.1:18081/api/base',
+                    url: '//inter.lolqq.xyz/api/base',
+                    type : "get", 
+                    dataType: 'json',
+                    timeout: 1000,
+                    async: false,
+                    // beforeSend: function (XMLHttpRequest) {
+                    //     layer.load(1);
+                    // },
+                    success : function(result){
+                        // 清空日期和数据
+                        parentMap = result.data.parentMap
+                        childMap = result.data.childMap
+                        categoryMap = result.data.categoryMap
+                    },
+                    error : function(result){ 
+                        // alert("读取数据错误");
+                    },
+                    complete:function (XMLHttpRequest, status) {
+                    //     // alert("加载完成")
+                    }
+                });
+            };
+            
+            function getData() {
+
+                var pid = $("select[name='parent']").val();
+                var cid = $("select[name='child']").val();
+                $.ajax({
+                    // url: 'http://127.0.0.1:18081/api/industry?startDate='+startDate+'&endDate='+endDate+'&pid='+pid+'&cid='+cid,
+                    url: '//inter.lolqq.xyz/api/industry?startDate='+startDate+'&endDate='+endDate+'&pid='+pid+'&cid='+cid,
+                    type : "get", 
+                    dataType: 'json',
+                    timeout: 1000,
+                    async: false,
+                    // beforeSend: function (XMLHttpRequest) {
+                    //     layer.load(1);
+                    // },
+                    success : function(result){
+                        // 清空日期和数据
+                        daysList = [], sumTotal = {}, cateTotal = {}, indusTotal = {}
+                        daysList = result.data.daysList
+                        sumTotal = result.data.sumTotal
+                        cateTotal = result.data.cateTotal
+                        indusTotal = result.data.indusTotal
+                    },
+                    error : function(result){ 
+                        // alert("读取数据错误");
+                    },
+                    // complete:function (XMLHttpRequest, status) {
+                    //     // alert("加载完成")
+                    // }
+                });
+            };
+
+            function putChild() {
+
+                $("select[name='child']").empty();
+                pid = $("select[name='parent']").val();
+                var allText = "<option value=\"0\" title=\"全部\" selected=\"\"></option>"
+                for (c in childMap) {
+                    if (childMap[c]['pid'] == pid) {
+                        allText += "<option value=\""+ c +"\" title=\"" + childMap[c]['name'] + "\"></option>";                   
+                    }
+                }
+                $("select[name='child']").append(allText); 
+            }
+
+            function putSum(isChecked) {
+                // 判断是否检查指标
+                
+                if (isChecked) {
+                    sumNameList = [], sumSumList = [], indusChoiceList = []
+
+                    daysNameList = [], daysSeriesList = []
+
+                    for (m in sumTotal) {
+                        // 获取总数
+                        total = sumTotal[m]['sum']
+                        $("#"+m).text(total);
+                        // 检查
+                        checked = $("input[class=sumCount][name='"+m+"']").is(':checked')
+                        if (checked) {
+                            title = $("input[class=sumCount][name='"+m+"']").attr("title")
+                            sumNameList.push(title)
+                            sumSumList.push(total)
+
+                            countList = sumTotal[m]['list']
+                            daysNameList.push(title)
+                            single_series = {name: title, type: 'line', stack: title, data: countList}
+                            daysSeriesList.push(single_series)
+
+                            indusChoiceList.push(m)
+                        }
+
+                    }
+
+                } else {
+
+                    sumNameList = [], sumSumList = []
+                    daysNameList = [], daysSeriesList = []
+
+                    for (m in sumTotal) {
+                        // 获取总数
+                        total = sumTotal[m]['sum']
+                        $("#"+m).text(total);
+                        // 默认指标
+                        for (d in indusChoiceList) {
+                            if (indusChoiceList[d] == m) {
+                                title = $("input[class=sumCount][name='"+m+"']").attr("title")
+                                sumNameList.push(title)
+                                sumSumList.push(total)
+
+                                countList = sumTotal[m]['list']
+                                daysNameList.push(title)
+                                single_series = {name: title, type: 'line', stack: title, data: countList}
+                                daysSeriesList.push(single_series)
+
+                            }
+                        }
+                    }
+                }
+        
+            }
+
+            function putIndus() {
+                indusNameList = [], indusSumList = []
+
+                pid = $("select[name='parent']").val();
+                
+                checked = $("select[name='indus']").val();
+                for (m in indusTotal) {
+                    // 检查
+                    if (checked == m) {
+                        cids = indusTotal[m]
+                        for (c in cids) {
+                            parentId = childMap[c]['pid']
+                            if (parentId == pid) {
+                                indusNameList.push(childMap[c]['name'])
+                                indusSumList.push(cids[c])
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            function putCate() {
+                cateNameList = [], cateSumList = []
+                checked = $("select[name='category']").val();
+                for (m in cateTotal) {
+                    // 检查
+                    if (checked == m) {
+                        pids = cateTotal[m]
+                        for (p in pids) {
+                            cateNameList.push(categoryMap[p])
+                            cateSumList.push(pids[p])
+                        }
+                    }
+                }
+            }
+
+            function putTable(isChecked) {
+               
+                tableData = [], colsData = [], addItem = []
+                colsData.push({field:'category', title:'行业'})
+
+                if (isChecked) {
+                    tableChoiceList = []
+                    
+                    $("input[class=tableCount]").each(function(i,item){
+                        checked = $("input[class=tableCount]").eq(i).is(':checked')
+                        if (checked) {
+                            check_name = $("input[class=tableCount]").eq(i).attr('name');
+                            tableChoiceList.push(check_name)
+                        }               
+                    });
+
+                } 
+                for (t in tableChoiceList ){
+
+                    check_title = $("input[class=tableCount][name='"+tableChoiceList[t]+"']").attr("title")
+                    colsData.push({field: tableChoiceList[t], title: check_title})
+                }
+                if (tableChoiceList.length > 0) {
+                    for (c in childMap) {
+                        cateMap = {"category": childMap[c]['name']}
+                        for (i in tableChoiceList) {
+                            total = indusTotal[tableChoiceList[i]][c]
+                            cateMap[tableChoiceList[i]] = total
+                        }
+                    
+                        tableData.push(cateMap)
+                    }
+                }
+
+               layui.use('table', function(){
+                   var table = layui.table;
+
+                   var $ = layui.jquery, layer = layui.layer, form = layui.form;
+                           
+
+                   table.render({
+                       elem: '#dataTable', id: 'exportTable', toolbar: '#toolbar', //开启头部工具栏，并为其绑定左侧模板
+                       defaultToolbar: ['exports', 'filter',
+                           {title: '全局设置',layEvent: 'setting',icon: 'layui-icon-set-fill'}
+                       ], 
+                       title: '行业数据表', 
+                       cols: [colsData],
+                       data: tableData, page: true, limit: 10, totalRow: false //开启合计行
+                   });
+
+
+                   //监听头部工具栏事件
+                   table.on("toolbar(dataTable)",function(obj){
+                   switch(obj.event){
+                       case 'LAYTABLE_EXPORT':
+                           $("[data-type='csv']").hide();
+                           $("[data-type='xls']").click(
+                               table.exportFile('exportTable', tableData, 'xls')
+                           )
+                           // $("[data-type='csv']").on("click",()=>{
+                           //     table.exportFile('exportTable', tableData, 'xls');
+                           // });
+                           break;
+
+                       case 'setting':
+                           // 弹出层
+
+                           layer.open({
+                               type: 1, title: "所有指标", closeBtn: 2, area: ['50%','400px'], 
+                               shade: 0.8, id: 'table_choice', btn: ['确认'],
+                               yes: function(index, layero) {
+                                   putTable(true);
+                                   layer.close(index);
+                               },
+                               btnAlign: 'c', anim: 1, moveType: 1, content:$("#table_check").html(),
+                               success: function(layero){
+                                   form.render(null, "tableForm"); // 刷新checkbox开关渲染(否则开关按钮会不显示)
+                               }
+                           });
+
+                       }
+
+                   });
+
+                   $(".layui-table thead span").each(function(i, item){
+                        $(".layui-table thead span").eq(i).mouseover(function() {
+                            hover_text = $(".layui-table thead span").eq(i).text()
+                            layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                        });
+                    });
+
+                    $(".layui-table tbody div").each(function(i, item){
+                        $(".layui-table tbody div").eq(i).mouseover(function() {
+                            hover_text = $(".layui-table tbody div").eq(i).text()
+                            layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                        });
+                    });
+
+
+               });
+
+           };
+
+
+
+            // 弹出层
+            layui.use('layer', function(){
+                var $ = layui.jquery, layer = layui.layer, form = layui.form;
+                //触发事件
+                var active = {
+                    notice: function(){
+                        //示范一个公告层
+                        layer.open({
+                            type: 1, title: "数据说明", closeBtn: false, area: ['50%','400px'], 
+                            shade: 0.8, id: 'lay_notice', //设定一个id，防止重复弹出
+                            btn: ['已知晓'], btnAlign: 'c', moveType: 1, //拖拽模式，0或者1
+                            content:$("#notice").html(), 
+                            success: function(layero){
+                            }
+                        });
+                    },
+                    sum_choice: function(){
+                        layer.open({
+                            type: 1, title: "所有指标", closeBtn: 2, area: ['50%','400px'], 
+                            shade: 0.8, id: 'sum_choice', btn: ['确认'],
+                            yes: function(index, layero) {
+                                putSum(true);
+                                sumView();
+                                layer.close(index);
+                            },
+                            btnAlign: 'c', anim: 1, moveType: 1, content:$("#sum_check").html(),
+                            success: function(layero){
+                                form.render(null, "indusForm"); // 刷新checkbox开关渲染(否则开关按钮会不显示)
+                            }
+                        });
+                    }
+                };
+              
+                $('#notice_button').on('click', function(){
+                    var othis = $(this), method = othis.data('method');
+                    active[method] ? active[method].call(this, othis) : '';
+                });
+                $('#sum_button').on('click', function(){
+                    var othis = $(this), method = othis.data('method');
+                    active[method] ? active[method].call(this, othis) : '';
+                });
+
+                form.on("select(parent)", function(data){
+                    parent_value = $("select[name='parent']").parent()
+                    select_title = data.elem.selectedOptions[0].title
+                    layer.tips("<span class=\"layui-font-18\">"+select_title+"</span", parent_value, {tips: [4,"#0099CC"]})
+                    putChild()
+                    putSelect()
+                    form.render();
+ 
+                    $("select[name='parent']").next().find(" dd").each(function(i, item){
+                        $("select[name='parent']").next().find(" dd").eq(i).mouseover(function() {
+                            hover_text = $("select[name='parent'] option").eq(i).attr("title")
+                            layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                        });
+                    });
+                    $("select[name='child']").next().find(" dd").each(function(i, item){
+                        $("select[name='child']").next().find(" dd").eq(i).mouseover(function() {
+                            hover_text = $("select[name='child'] option").eq(i).attr("title")
+                            layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                        });
+                    });
+
+                    getData();
+                    putSum(false);
+                    sumView();
+
+                    putIndus();
+                    indusView();
+                    putCate();
+                    cateView();
+
+                    putTable(false);
+                });
+                
+                form.on("select(child)", function(data){
+                    parent_value = $("select[name='child']").parent()
+                    select_title = data.elem.selectedOptions[0].title
+                    layer.tips("<span class=\"layui-font-18\">"+select_title+"</span", parent_value, {tips: [4,"#0099CC"]})
+                    getData();
+                    putSum(false);
+                    sumView();
+
+                    putCate();
+                    cateView();
+
+                    putTable(false);
+                });
+                form.on("select(indus)", function(data){
+                    parent_value = $("select[name='indus']").parent()
+                    select_title = data.elem.selectedOptions[0].title
+                    layer.tips("<span class=\"layui-font-18\">"+select_title+"</span", parent_value, {tips: [4,"#0099CC"]})
+                    putIndus();
+                    indusView();
+                });
+                form.on("select(category)", function(data){
+                    parent_value = $("select[name='category']").parent()
+                    select_title = data.elem.selectedOptions[0].title
+                    layer.tips("<span class=\"layui-font-18\">"+select_title+"</span", parent_value, {tips: [4,"#0099CC"]})
+                    putCate();
+                    cateView();
+                    
+                });
+
+                $("select[name='parent']").next().find(" dd").each(function(i, item){
+                    $("select[name='parent']").next().find(" dd").eq(i).mouseover(function() {
+                        hover_text = $("select[name='parent'] option").eq(i).attr("title")
+                        layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                    });
+                });
+                $("select[name='child']").next().find(" dd").each(function(i, item){
+                    $("select[name='child']").next().find(" dd").eq(i).mouseover(function() {
+                        hover_text = $("select[name='child'] option").eq(i).attr("title")
+                        layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                    });
+                });
+
+                $("select[name='indus']").next().find(" dd").each(function(i, item){
+                    $("select[name='indus']").next().find(" dd").eq(i).mouseover(function() {
+                        hover_text = $("select[name='indus'] option").eq(i).attr("title")
+                        layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                    });
+                });
+
+                $("select[name='category']").next().find(" dd").each(function(i, item){
+                    $("select[name='category']").next().find(" dd").eq(i).mouseover(function() {
+                        hover_text = $("select[name='category'] option").eq(i).attr("title")
+                        layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                    });
+                });
+            }); 
+
+            // 时间趋势与指标对比情况
+            function sumView() {
+                var sumChart = echarts.init(document.getElementById('sumChart'));
+                var daysChart = echarts.init(document.getElementById('daysChart'));
+
+                var sumOption = {
+                    title: {text: '指标累计值对比情况', left: 'center'}, 
+                    tooltip: {}, legend: {},
+                    grid: {left: '2%', right: '2%', bottom: '10%', containLabel: true},
+                    xAxis: {type: 'category', data: sumNameList}, yAxis: {type: 'value'},
+                    dataZoom: [{type: 'slider', height: 10, bottom: '2%'}],
+                    series: [{name: '', type:'bar', barWidth: 20, data: sumSumList}],
+                    aria: {enabled: true, decal: {show: true}}
+                };
+                var daysOption = {
+                    title: {text: '指标日新增趋势图', left: 'center'},
+                    tooltip: {trigger: 'axis'}, 
+                    legend: {orient: 'horizontal', bottom: '5%', right: 'auto', data: daysNameList},
+                    grid: {left: '2%', right: '2%', bottom: '15%', containLabel: true},
+                    xAxis: {type: 'category', boundaryGap: false, axisLabel: {rotate: -90}, data: daysList}, 
+                    yAxis: {type: 'value'},
+                    dataZoom: [{type: 'slider', height: 10, bottom: '2%'}], 
+                    series: daysSeriesList,
+                };
+
+                sumChart.setOption(sumOption, true);
+                daysChart.setOption(daysOption, true);
+
+            };
+
+            // 领域
+            function cateView() {
+                var cateChart = echarts.init(document.getElementById('cateChart'));
+
+                var cateOption = {
+                    title: {text: '任务在各领域分布情况', left: 'center'}, 
+                    tooltip: {}, legend: {},
+                    grid: {left: '2%', right: '2%', bottom: '10%', containLabel: true},
+                    xAxis: {type: 'category', data: cateNameList}, yAxis: {type: 'value'},
+                    dataZoom: [{type: 'slider', height: 10, bottom: '2%', start: 0, end: 33}],
+                    series: [{name: '', type:'bar', barWidth: 20, data: cateSumList}],
+                    aria: {enabled: true, decal: {show: true}}
+                };
+
+                cateChart.setOption(cateOption, true);
+            };
+            // 行业
+            function indusView() {
+                var indusChart = echarts.init(document.getElementById('indusChart'));
+
+                var iudusOption = {
+                    title: {text: '各行业认证广告主对比情况', left: 'center'}, 
+                    tooltip: {}, legend: {},
+                    grid: {left: '2%', right: '2%', bottom: '10%', containLabel: true},
+                    xAxis: {type: 'category', data: indusNameList}, yAxis: {type: 'value'},
+                    dataZoom: [{type: 'slider', height: 10, bottom: '2%'}],
+                    series: [{name: '', type:'bar', barWidth: 20, data: indusSumList}],
+                    aria: {enabled: true, decal: {show: true}}
+                };
+
+                indusChart.setOption(iudusOption, true);
+            };
+
+        
+            getBase();
+            putChild();
+            putSelect();
+            
+            getNow();
+            getData();
+            putSum(false);
+            sumView();
+
+            putIndus();
+            indusView();
+            putCate();
+            cateView();
+
+            putTable(false);
+        
+        </script> 
+
+    </body>
+</html>

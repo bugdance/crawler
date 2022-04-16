@@ -1,0 +1,122 @@
+# yaml 配置
+version: '3'
+services:
+
+  mariadb:
+    container_name: mariadb
+    image: "mariadb:latest"
+    volumes:
+      - ./data/mariadb/db:/var/lib/mysql
+      - ./data/mariadb/log:/var/log/mysql
+      - ./deploy/my.cnf:/etc/mysql/my.cnf
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      # - "MYSQL_DATABASE=manager"
+      - "TZ=Asia/Shanghai"
+    restart: always
+    ports: 
+      - "127.0.0.1:3306:3306"
+
+  mongodb:
+    container_name: mongodb
+    image: "mongo:latest"
+    volumes:
+      - ./deploy/mongod.conf:/etc/mongod.conf
+      - ./data/mongodb/db:/var/lib/mongodb
+      - ./data/mongodb/log:/var/log/mongodb
+    command:
+      - bash
+      - -c
+      - mongod -f /etc/mongod.conf
+    restart: always
+    ports: 
+      - "127.0.0.1:27017:27017" 
+
+  redis:
+    container_name: redis
+    image: "redis:latest"
+    volumes:
+      - ./deploy/redis.conf:/etc/redis.conf
+      - ./data/redis/db:/data/redis
+    command:
+      - bash
+      - -c
+      - redis-server /etc/redis.conf --appendonly yes
+    restart: always
+    ports: 
+      - "127.0.0.1:6379:6379"
+
+  webs:
+    image: "bugdancer/python39:webs"
+    tty: true
+    container_name: webs
+    volumes:
+      - /home/lolqq/:/home/
+    working_dir: /home/webs
+    # 不加&串行,加&并行
+    command:
+      - bash
+      - -c
+      - |
+          python3 manage.py makemigrations --empty beat custom --noinput
+          python3 manage.py makemigrations --noinput
+          python3 manage.py migrate --noinput
+          python3 manage.py collectstatic --noinput
+          celery -A admin beat &
+          celery -A admin worker -P gevent -Q tow_hours &
+          celery -A admin worker -P gevent -Q tow_minutes &
+          gunicorn -c admin_gun.py admin.wsgi:application
+
+    restart: always
+    ports:
+      - "127.0.0.1:8000:8000"
+    links:
+      - mariadb
+      - mongodb
+      - redis
+
+  services:
+    image: "bugdancer/python39:webs"
+    tty: true
+    container_name: services
+    volumes:
+      - /home/lolqq/:/home/
+    working_dir: /home/services
+    command: gunicorn -c mcn_gun.py mcn_api:app
+    restart: always
+    ports:
+      - "127.0.0.1:18081:18081"
+    links:
+      - mongodb
+
+  tasks:
+    image: "bugdancer/python39:tasks"
+    tty: true
+    container_name: tasks
+    volumes:
+      - /home/lolqq/:/home/
+    working_dir: /home/tasks
+    command: gunicorn -c task_gun.py task_api:app
+    restart: always
+    ports:
+     - "127.0.0.1:18082:18082"
+
+  nginx:
+    container_name: nginx
+    image: "nginx:latest"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf
+      - /etc/ssl:/etc/ssl
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: always
+    ports: 
+      - "80:80"
+      - "443:443"
+    links:
+      - webs
+      - services
+      - tasks
+      
+networks: 
+  nets:
+    external: false

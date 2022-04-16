@@ -1,0 +1,52 @@
+# yaml 配置
+version: '3'
+services:
+
+  mariadb:
+    container_name: mariadb
+    image: "mariadb:latest"
+    volumes:
+      - D:\DockerImage\db\mysql:/var/lib/mysql
+      # - D:\DockerImage\log\mysql:/var/log/mysql
+      # - D:\DockerImage\mysql-files:/var/lib/mysql-files/
+      # - ./my.cnf:/home/my.cnf
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "TZ=Asia/Shanghai"
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    ports:
+      - "3306:3306"
+
+  mongodb:
+    container_name: mongodb
+    image: "mongo:latest"
+    volumes:
+      - ./mongod.conf:/etc/mongod.conf
+      - D:\DockerImage\db\mongodb:/var/lib/mongodb
+    #   - ./data/mongodb/log:/var/log/mongodb
+    command:
+      - bash
+      - -c
+      - mongod -f /etc/mongod.conf
+    restart: always
+    ports: 
+      - "27017:27017" 
+
+  redisdb:
+    container_name: redis
+    image: "redis:latest"
+    volumes:
+      - ./redis.conf:/etc/redis.conf
+      - D:\DockerImage\db\redisdb:/data/redis
+    command:
+      - bash
+      - -c
+      - redis-server /etc/redis.conf --appendonly yes
+    restart: always
+    ports: 
+      - "6379:6379"
+
+# networks: 
+  # nets:
+    # external: false

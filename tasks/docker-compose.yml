@@ -1,0 +1,31 @@
+# yaml 配置
+version: '3'
+services:
+  tasks:
+    image: "bugdancer/python39:tasks"
+    tty: true
+    container_name: tasks
+    volumes:
+      - /home/lolqq/:/home/
+    working_dir: /home/tasks
+    command: gunicorn -c task_gun.py task_api:app
+    restart: always
+    ports:
+     - "127.0.0.1:18082:18082"
+
+  nginx:
+    container_name: nginx
+    image: "nginx:latest"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - tasks
+    restart: always
+    ports: 
+      - "80:80" 
+    links:
+      - tasks
+
+# networks: 
+#   nets:
+#     external: false

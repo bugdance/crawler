@@ -1,0 +1,194 @@
+<html>
+<head>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <meta http-equiv="refresh" content="300">
+</head>
+<body>
+
+<br/>
+<script>
+    function replaceDoc()
+    {
+        window.location.reload();
+    }
+</script>
+<div style="text-align:center">
+<input type="button" value="点击刷新" onclick="replaceDoc()">
+</div>
+<br/>
+<div style="text-align:center">
+<span>同步数据：{{ sync_count|default:0}}</span>
+<span>采集数据：{{ scrape_count|default:0}}</span>
+<span>丢失数据：{{ lost_count|default:0}}</span>
+<br/>
+<span>真实数据：{{ real_count|default:0}}</span>
+<span>有效数据：{{ valid_count|default:0}}</span>
+<span>无效数据：{{ invalid_count|default:0}}</span>
+</div>
+<br/>
+
+
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="sync_main" style="width: 600px;height:400px;float:left;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('sync_main'));
+
+    myChart.setOption({
+        title : {
+            show: true,//显示策略，默认值true,可选为：true（显示） | false（隐藏）
+            text: '同步数据：{{ sync_count|default:0}}',
+            x:'center',
+            y: 'top',
+        },
+        series : [
+            {
+                name: '平台来源',
+                type: 'pie',    // 设置图表类型为饼图
+                radius : '50%',
+                center : [ '50%', '50%' ],
+                data: {{ sync_data|safe }},
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    },
+                    normal:{
+                        label:{
+                            show: true,
+                            formatter: '{b} : {c} ({d}%)'
+                        },
+                        labelLine :{show:true}
+                    }
+                }
+            }
+        ]
+    })
+</script>
+
+
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="scrape_main" style="width: 600px;height:400px;float:left;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('scrape_main'));
+
+    myChart.setOption({
+        title : {
+            show: true,//显示策略，默认值true,可选为：true（显示） | false（隐藏）
+            text: '采集数据：{{ scrape_count|default:0}}',
+            x:'center',
+            y: 'top',
+        },
+        series : [
+            {
+                name: '平台来源',
+                type: 'pie',    // 设置图表类型为饼图
+                radius : '50%',
+                center : [ '50%', '50%' ],
+                data: {{ scrape_data|safe }},
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    },
+                    normal:{
+                        label:{
+                            show: true,
+                            formatter: '{b} : {c} ({d}%)'
+                        },
+                        labelLine :{show:true}
+                    }
+                }
+            }
+        ]
+    })
+</script>
+
+
+
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="valid_main" style="width: 600px;height:400px;float:left;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('valid_main'));
+
+    myChart.setOption({
+        title : {
+            show: true,//显示策略，默认值true,可选为：true（显示） | false（隐藏）
+            text: '有效数据：{{ valid_count|default:0}}',
+            x:'center',
+            y: 'top',
+        },
+        series : [
+            {
+                name: '平台来源',
+                type: 'pie',    // 设置图表类型为饼图
+                radius : '50%',
+                center : [ '50%', '50%' ],
+                data: {{ valid_data|safe }},
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    },
+                    normal:{
+                        label:{
+                            show: true,
+                            formatter: '{b} : {c} ({d}%)'
+                        },
+                        labelLine :{show:true}
+                    }
+                }
+            }
+        ]
+    })
+</script>
+
+
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="invalid_main" style="width: 600px;height:400px;float:left;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('invalid_main'));
+
+    myChart.setOption({
+        title : {
+            show: true,//显示策略，默认值true,可选为：true（显示） | false（隐藏）
+            text: '无效数据：{{ invalid_count|default:0}}',
+            x:'center',
+            y: 'top',
+        },
+        series : [
+            {
+                name: '平台来源',
+                type: 'pie',    // 设置图表类型为饼图
+                radius : '50%',
+                center : [ '50%', '50%' ],
+                data: {{ invalid_data|safe }},
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    },
+                    normal:{
+                        label:{
+                            show: true,
+                            formatter: '{b} : {c} ({d}%)'
+                        },
+                        labelLine :{show:true}
+                    }
+                }
+            }
+        ]
+    })
+</script>
+
+
+
+</body>
+</html>

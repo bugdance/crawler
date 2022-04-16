@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>媒介分析</title>
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+        <script src="/static/layui/layui.js" charset="utf-8"></script>
+        <script src="/static/echarts/echarts.min.js" charset="utf-8"></script>
+        <script src="/static/jquery/jquery-3.6.0.min.js"></script>
+        <style type="text/css"> </style>
+    </head>
+    <body class="layui-layout-body">
+        <!-- 数字面板 -->
+        <div class="layui-bg-gray" style="padding: 10px;">
+            <!-- 数据说明 -->
+            <div class="layui-inline layui-anim layui-anim-rotate">
+                <button id="notice_button" data-method="notice" class="layui-btn layui-btn-sm layui-btn-radius layui-bg-orange">
+                    <i class="layui-icon layui-icon-about"> 数据说明</i>
+                </button>
+                <!-- 说明弹窗 -->
+                <div class="layui-row" id="notice" style="display:none;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;1. 数据每日0点更新，看板默认展示2020年11月30日至当日0点的数据情况。<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;2. 主要字段说明如下：<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自媒体主：APP端注册用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;广告主：PC端注册用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;账号：APP端入驻/资源管理后台达人账号<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;活跃用户：7日内有访问行为的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;沉默用户：大于7日，小于等于30日内有访问行为的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;流失用户：大于30日没有访问行为的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;唤醒用户：今日由”沉默用户“变为”活跃用户“的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;唤回用户：今日由“流失用户”变成“活跃用户”的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;报名用户：今日有过报名行为的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;合作用户：今日有生成订单的用户<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APP账号：在APP端入驻的账号<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;媒介账号：后台导入但APP端未申领的账号<br>
+                </div>
+            </div>
+            <!-- 日期选项 -->
+            <div class="layui-inline" style="float: right;">
+                <form class="layui-form" action="">
+                    <div class="layui-inline">
+                        <label class="layui-form-label layui-anim layui-anim-down layui-font-20 layui-font-blue">媒介</label>
+                        <div class="layui-input-inline layui-font-18" style="max-width: 150px;">
+                            <select name="source" lay-filter="medium">
+                                <option value="2" title="杨亚宁" selected=""></option>
+                                <option value="3" title="黄峥"></option>
+                                <option value="7" title="张雪雪"></option>
+                                <option value="12" title="金禹丞"></option>
+                                <option value="22" title="谢格致"></option>
+                                <option value="29" title="王宁01"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline layui-anim layui-anim-down" style="font-weight: bold;">
+                        <div class="layui-inline">
+                            <label class="layui-form-label layui-font-20 layui-font-blue">日期范围</label>
+                        </div>
+                        <div class="layui-inline">
+                            <input type="text" autocomplete="off" id="date-range" class="layui-input" placeholder="日期范围">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- 数字组图 -->
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">账号总数</span>
+                            <br />
+                            <br />
+                            <span id="allAccount" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">个人账号</span>
+                            <br />
+                            <br />
+                            <span id="perAccount" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">机构账号</span>
+                            <br />
+                            <br />
+                            <span id="orgAccount" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">APP账号</span>
+                            <br />
+                            <br />
+                            <span id="appAccount" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">媒介账号</span>
+                            <br />
+                            <br />
+                            <span id="medAccount" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md2">
+                    <div class="layui-panel layui-anim layui-anim-scaleSpring" style="padding: 10px; height: 50px;">
+                        <div class="layui-col-md3">
+                            <i class="layui-icon layui-icon-template-1 layui-font-cyan" style="font-size: 30px;"></i>
+                        </div>
+                        <div class="layui-col-md9">
+                            <span class="layui-font-16 layui-font-cyan">投放账号</span>
+                            <br />
+                            <br />
+                            <span id="putAccount" class="layui-font-20 layui-font-red" style="font-weight: bold;">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <br />
+
+        <!-- 平台分布情况/领域分布情况 -->
+        <div class="layui-bg-gray" style="padding: 10px;">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md6">
+                    <blockquote class="layui-elem-quote layui-quote-nm">
+                        <i class="layui-icon layui-icon-chart-screen layui-font-18"> 平台分布情况</i>
+                        <button id="plat_button" data-method="plat_choice" class="layui-btn layui-bg-gray" style="float: right;">
+                            <i class="layui-icon layui-icon-set-fill layui-font-18"> 切换指标</i>
+                        </button>
+                    </blockquote>
+
+                    <!-- 指标内容 -->
+                    <div class="layui-row layui-col-space10" id="plat_check" style="display:none;">
+                        <div class="layui-tab layui-tab-brief">
+                            <ul class="layui-tab-title">
+                                <li class="layui-this">账号指标</li>
+                                <li>自媒体主指标</li>
+                                <!-- <li>IM指标</li> -->
+                            </ul>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item layui-show">
+                                    <form class="layui-form" lay-filter="platForm" action="">
+                                        <div class="layui-form-item" pane="">
+                                            <div class="layui-input-block">
+                                                <input type="checkbox" class="platCount" name="allAccount" lay-skin="primary" title="全部账号" />
+                                                <input type="checkbox" class="platCount" name="medAccount" lay-skin="primary" title="媒介账号" />
+                                                <input type="checkbox" class="platCount" name="appAccount" lay-skin="primary" title="APP账号" />
+                                                <input type="checkbox" class="platCount" name="perAccount" lay-skin="primary" title="个人账号" />
+                                                <input type="checkbox" class="platCount" name="orgAccount" lay-skin="primary" title="机构账号" />
+                                                <input type="checkbox" class="platCount" name="putAccount" lay-skin="primary" title="投放账号" />
+                                                <input type="checkbox" class="platCount" name="livAccount" lay-skin="primary" title="直播账号" />
+                                                <input type="checkbox" class="platCount" name="notAccount" lay-skin="primary" title="非二道贩子账号" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="layui-tab-item">
+                                    <form class="layui-form" lay-filter="platForm" action="">
+                                        <div class="layui-form-item" pane="">
+                                            <div class="layui-input-block">
+                                                <!-- <input type="checkbox" class="platCount" name="regMedia" lay-skin="primary" title="注册自媒体主" /> -->
+                                                <input type="checkbox" class="platCount" name="setMedia" lay-skin="primary" title="入驻自媒体主" />
+                                                <input type="checkbox" class="platCount" name="perMedia" lay-skin="primary" title="个人自媒体主" />
+                                                <input type="checkbox" class="platCount" name="orgMedia" lay-skin="primary" title="机构自媒体主" />
+                                                <input type="checkbox" class="platCount" name="aorMedia" lay-skin="primary" title="活跃机构" />
+                                                <input type="checkbox" class="platCount" name="actMedia" lay-skin="primary" title="活跃自媒体主" />
+                                                <input type="checkbox" class="platCount" name="secMedia" lay-skin="primary" title="次日留存自媒体主" />
+                                                <input type="checkbox" class="platCount" name="thdMedia" lay-skin="primary" title="三日留存自媒体主" />
+                                                <input type="checkbox" class="platCount" name="sltMedia" lay-skin="primary" title="沉默自媒体主" />
+                                                <input type="checkbox" class="platCount" name="losMedia" lay-skin="primary" title="流失自媒体主" />
+                                                <input type="checkbox" class="platCount" name="bakMedia" lay-skin="primary" title="唤回自媒体主" />
+                                                <input type="checkbox" class="platCount" name="awkMedia" lay-skin="primary" title="唤醒自媒体主" />
+                                                <input type="checkbox" class="platCount" name="enlMedia" lay-skin="primary" title="报名自媒体主" />
+                                                <input type="checkbox" class="platCount" name="cprMedia" lay-skin="primary" title="合作自媒体主" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <!-- <div class="layui-tab-item">
+                                    <form class="layui-form" action="">
+                                        <div class="layui-form-item" pane="">
+                                            <div class="layui-input-block">
+                                                <input type="checkbox" class="platCount" name="cmcIMMedia" lay-skin="primary" title="沟通总数" />
+                                                <input type="checkbox" class="platCount" name="msgIMMedia" lay-skin="primary" title="消息总数" />
+                                                <input type="checkbox" class="platCount" name="urmIMMedia" lay-skin="primary" title="未读消息数" />
+                                                <input type="checkbox" class="platCount" name="stcIMMedia" lay-skin="primary" title="自媒体主主动发起沟通数" />
+                                                <input type="checkbox" class="platCount" name="urmIMMedia" lay-skin="primary" title="自媒体主未读消息数" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 图表内容 -->
+                    <div class="layui-panel layui-anim layui-anim-scale">
+                        <div id="platChart" style="width: auto;height: 300px;"></div>
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <blockquote class="layui-elem-quote layui-quote-nm">
+                        <i class="layui-icon layui-icon-chart-screen layui-font-18"> 领域分布情况</i>
+                        <div class="layui-inline" style="float: right;">
+                            <button id="cate_button" data-method="cate_choice" class="layui-btn layui-bg-gray">
+                                <i class="layui-icon layui-icon-set-fill layui-font-18"> 切换指标</i>
+                            </button>
+                        </div>
+                        <form class="layui-form" action="" style="float: right;">
+                            <div class="layui-input-inline layui-font-18" style="max-width: 150px;">
+                                <select name="plat" lay-filter="category">
+                                    <option value="0" title="全部" selected=""></option>
+                                    <option value="1" title="抖音"></option>
+                                    <option value="2" title="快手"></option>
+                                    <option value="3" title="哔站"></option>
+                                    <option value="4" title="红书"></option>
+                                    <option value="5" title="微博"></option>
+                                    <option value="6" title="微信"></option>
+                                    <option value="7" title="知乎"></option>
+                                    <option value="8" title="头条"></option>
+                                </select>
+                            </div>
+                        </form>
+
+                    </blockquote>
+                    <!-- 指标内容 -->
+                    <div class="layui-row layui-col-space10" id="cate_check" style="display:none;">
+                        <div class="layui-tab layui-tab-brief">
+                            <ul class="layui-tab-title">
+                                <li class="layui-this">账号指标</li>
+                                <li>自媒体主指标</li>
+                                <!-- <li>IM指标</li> -->
+                            </ul>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item layui-show">
+                                    <form class="layui-form" lay-filter="cateForm" action="">
+                                        <div class="layui-form-item" pane="">
+                                            <div class="layui-input-block">
+                                                <input type="checkbox" class="cateCount" name="allAccount" lay-skin="primary" title="全部账号" />
+                                                <input type="checkbox" class="cateCount" name="medAccount" lay-skin="primary" title="媒介账号" />
+                                                <input type="checkbox" class="cateCount" name="appAccount" lay-skin="primary" title="APP账号" />
+                                                <input type="checkbox" class="cateCount" name="perAccount" lay-skin="primary" title="个人账号" />
+                                                <input type="checkbox" class="cateCount" name="orgAccount" lay-skin="primary" title="机构账号" />
+                                                <input type="checkbox" class="cateCount" name="putAccount" lay-skin="primary" title="投放账号" />
+                                                <input type="checkbox" class="cateCount" name="livAccount" lay-skin="primary" title="直播账号" />
+                                                <input type="checkbox" class="cateCount" name="notAccount" lay-skin="primary" title="非二道贩子账号" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="layui-tab-item">
+                                    <form class="layui-form" lay-filter="cateForm" action="">
+                                        <div class="layui-form-item" pane="">
+                                            <div class="layui-input-block">
+                                                <!-- <input type="checkbox" class="cateCount" name="regMedia" lay-skin="primary" title="注册自媒体主" /> -->
+                                                <input type="checkbox" class="cateCount" name="setMedia" lay-skin="primary" title="入驻自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="perMedia" lay-skin="primary" title="个人自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="orgMedia" lay-skin="primary" title="机构自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="aorMedia" lay-skin="primary" title="活跃机构" />
+                                                <input type="checkbox" class="cateCount" name="actMedia" lay-skin="primary" title="活跃自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="secMedia" lay-skin="primary" title="次日留存自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="thdMedia" lay-skin="primary" title="三日留存自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="sltMedia" lay-skin="primary" title="沉默自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="losMedia" lay-skin="primary" title="流失自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="bakMedia" lay-skin="primary" title="唤回自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="awkMedia" lay-skin="primary" title="唤醒自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="enlMedia" lay-skin="primary" title="报名自媒体主" />
+                                                <input type="checkbox" class="cateCount" name="cprMedia" lay-skin="primary" title="合作自媒体主" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <!-- <div class="layui-tab-item">
+                                    <form class="layui-form" action="">
+                                        <div class="layui-form-item" pane="">
+                                            <div class="layui-input-block">
+                                                <input type="checkbox" class="cateCount" name="cmcIMMedia" lay-skin="primary" title="沟通总数" />
+                                                <input type="checkbox" class="cateCount" name="msgIMMedia" lay-skin="primary" title="消息总数" />
+                                                <input type="checkbox" class="cateCount" name="urmIMMedia" lay-skin="primary" title="未读消息数" />
+                                                <input type="checkbox" class="cateCount" name="stcIMMedia" lay-skin="primary" title="自媒体主主动发起沟通数" />
+                                                <input type="checkbox" class="cateCount" name="urmIMMedia" lay-skin="primary" title="自媒体主未读消息数" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 图表内容 -->
+                    <div class="layui-panel layui-anim layui-anim-scale">
+                        <div id="cateChart" style="width: auto;height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <!-- 数据报表 -->
+        <div class="layui-bg-gray layui-anim layui-anim-scale" style="padding: 10px;">
+            <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+            <!-- 指标内容 -->
+            <div class="layui-row layui-col-space10" id="table_check" style="display:none;">
+                <div class="layui-tab layui-tab-brief">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">账号指标</li>
+                        <li>自媒体主指标</li>
+                        <!-- <li>IM指标</li> -->
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <form class="layui-form" lay-filter="tableForm" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="tableCount" name="allAccount" lay-skin="primary" title="全部账号" />
+                                        <input type="checkbox" class="tableCount" name="medAccount" lay-skin="primary" title="媒介账号" />
+                                        <input type="checkbox" class="tableCount" name="appAccount" lay-skin="primary" title="APP账号" />
+                                        <input type="checkbox" class="tableCount" name="perAccount" lay-skin="primary" title="个人账号" />
+                                        <input type="checkbox" class="tableCount" name="orgAccount" lay-skin="primary" title="机构账号" />
+                                        <input type="checkbox" class="tableCount" name="putAccount" lay-skin="primary" title="投放账号" />
+                                        <input type="checkbox" class="tableCount" name="livAccount" lay-skin="primary" title="直播账号" />
+                                        <input type="checkbox" class="tableCount" name="notAccount" lay-skin="primary" title="非二道贩子账号" />
+                                        <input type="checkbox" class="tableCount" name="dysAccount" lay-skin="primary" title="抖音账号数" />
+                                        <input type="checkbox" class="tableCount" name="kssAccount" lay-skin="primary" title="快手账号数" />
+                                        <input type="checkbox" class="tableCount" name="blsAccount" lay-skin="primary" title="哔站账号数" />
+                                        <input type="checkbox" class="tableCount" name="hssAccount" lay-skin="primary" title="红书账号数" />
+                                        <input type="checkbox" class="tableCount" name="wbsAccount" lay-skin="primary" title="微博账号数" />
+                                        <input type="checkbox" class="tableCount" name="wxsAccount" lay-skin="primary" title="微信账号数" />
+                                        <input type="checkbox" class="tableCount" name="zhsAccount" lay-skin="primary" title="知乎账号数" />
+                                        <input type="checkbox" class="tableCount" name="ttsAccount" lay-skin="primary" title="头条账号数" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="tableForm" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="tableCount" name="regMedia" lay-skin="primary" title="注册自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="setMedia" lay-skin="primary" title="入驻自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="perMedia" lay-skin="primary" title="个人自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="orgMedia" lay-skin="primary" title="机构自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="aorMedia" lay-skin="primary" title="活跃机构" />
+                                        <input type="checkbox" class="tableCount" name="actMedia" lay-skin="primary" title="活跃自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="secMedia" lay-skin="primary" title="次日留存自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="thdMedia" lay-skin="primary" title="三日留存自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="sltMedia" lay-skin="primary" title="沉默自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="losMedia" lay-skin="primary" title="流失自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="bakMedia" lay-skin="primary" title="唤回自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="awkMedia" lay-skin="primary" title="唤醒自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="enlMedia" lay-skin="primary" title="报名自媒体主" />
+                                        <input type="checkbox" class="tableCount" name="cprMedia" lay-skin="primary" title="合作自媒体主" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- <div class="layui-tab-item">
+                            <form class="layui-form" action="">
+                                <div class="layui-form-item" pane="">
+                                    <div class="layui-input-block">
+                                        <input type="checkbox" class="tableCount" name="cmcIMMedia" lay-skin="primary" title="沟通总数" />
+                                        <input type="checkbox" class="tableCount" name="msgIMMedia" lay-skin="primary" title="消息总数" />
+                                        <input type="checkbox" class="tableCount" name="urmIMMedia" lay-skin="primary" title="未读消息数" />
+                                        <input type="checkbox" class="tableCount" name="stcIMMedia" lay-skin="primary" title="自媒体主主动发起沟通数" />
+                                        <input type="checkbox" class="tableCount" name="urmIMMedia" lay-skin="primary" title="自媒体主未读消息数" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <script type="text/html" id="toolbar">
+            <div class="layui-btn-container">
+                <i class="layui-icon layui-icon-table layui-font-18 layui-font-cyan"> 数据报表</i>
+            </div>
+        </script>
+
+        <script type="text/javascript">
+
+            var platMap = {}, mediumMap = {}, categoryMap = {}
+            var mediumTotal = {}, mediumPlat = {}, mediumCategory = {}, categoryPlat = {}
+            var platSource = [], platSeries = [], cateSource = [], cateSeries = []
+            var platChoiceList = ["perAccount", "orgAccount"]
+            var cateChoiceList = ["perAccount", "orgAccount"]
+            var tableChoiceList = [
+                "allAccount", "dysAccount", "kssAccount", "blsAccount", "hssAccount", "wbsAccount",
+                "wxsAccount", "zhsAccount", "ttsAccount", "setMedia", "orgMedia", "perMedia"
+            ]
+            var startDate = "2020-11-01", endDate = "2020-11-02"
+
+            // 获取当前时间并且向前推时间
+            function getNow() {
+                var myDate = new Date();
+                myDate.setDate(myDate.getDate() - 1);
+
+                year = myDate.getFullYear()
+                month = myDate.getMonth() + 1
+                day = myDate.getDate()
+                if (month < 10) month = '0' + month;
+                if (day < 10) day = '0' + day;
+                endDate = year + "-" + month + "-" + day
+
+                // myDate.setDate(myDate.getDate() - 30*6);
+
+                // year = myDate.getFullYear()
+                // month = myDate.getMonth() + 1
+                // day = myDate.getDate()
+                // if (month < 10) month = '0' + month;
+                // if (day < 10) day = '0' + day;
+                // startDate = year + "-" + month + "-" + day 
+                
+            }
+            //日期范围
+            layui.use('laydate', function(){
+                var laydate = layui.laydate;
+                
+                laydate.render({
+                    elem: '#date-range', theme: '#393D49', showBottom: true, btns: ['confirm'], 
+                    min: '2020-11-01', max: endDate,
+                    range: '~',
+                    value: startDate + ' ~ ' + endDate, isInitValue: true,
+                    done: function(value, start, end){
+                        
+                        year = start["year"]
+                        month = start["month"]
+                        day = start["date"]
+                        if (month < 10) month = '0' + month;
+                        if (day < 10) day = '0' + day;
+
+                        startDate = year + "-" + month + "-" + day
+
+                        year = end["year"]
+                        month = end["month"]
+                        day = end["date"]
+                        if (month < 10) month = '0' + month;
+                        if (day < 10) day = '0' + day;
+
+                        endDate = year + "-" + month + "-" + day                  
+
+                        getData();
+                        putSum();
+                        putPlat(false);
+                        putCate(false)
+                        ChartView();
+                        putTable(false);
+                    }
+                    
+                });             
+            });
+
+            function putSelect() {
+                $("select[name='source'] option").each(function(i, item){
+                    child_title = $("select[name='source'] option").eq(i).attr("title");
+                    if (child_title.length > 0) {
+                        if (child_title.length > 5) {
+                            sub_title = child_title.substring(0,5) + "..."
+                            $("select[name='source'] option").eq(i).text(sub_title);
+                        } else {
+                            $("select[name='source'] option").eq(i).text(child_title);
+                        }
+                    } 
+                });
+
+                $("select[name='plat'] option").each(function(i, item){
+                    child_title = $("select[name='plat'] option").eq(i).attr("title");
+                    if (child_title.length > 0) {
+                        if (child_title.length > 5) {
+                            sub_title = child_title.substring(0,5) + "..."
+                            $("select[name='plat'] option").eq(i).text(sub_title);
+                        } else {
+                            $("select[name='plat'] option").eq(i).text(child_title);
+                        }
+                    } 
+                });
+
+            }
+
+            // 获取接口数据
+            function getData() {
+
+                var pid = $("select[name='plat']").val();
+                var cid = $("select[name='source']").val();
+
+                $.ajax({
+                    // url: 'http://127.0.0.1:18081/api/medium?startDate='+startDate+'&endDate='+endDate+'&pid='+pid+'&cid='+cid,
+                    url: '//inter.lolqq.xyz/api/medium?startDate='+startDate+'&endDate='+endDate+'&pid='+pid+'&cid='+cid,
+                    type : "get", 
+                    dataType: 'json',
+                    timeout: 5000,
+                    async: false,
+                    // beforeSend: function (XMLHttpRequest) {
+                    //     layer.load(1);
+                    // },
+                    success : function(result){
+                        // 清空日期和数据
+                        mediumTotal = {}, mediumPlat = {}, mediumCategory = {}, categoryPlat = {}
+                        platMap = result.data.platMap
+                        mediumMap = result.data.mediumMap
+                        categoryMap = result.data.categoryMap
+                        mediumTotal = result.data.mediumTotal
+                        mediumPlat = result.data.mediumPlat
+                        mediumCategory = result.data.mediumCategory
+                        categoryPlat = result.data.categoryPlat
+
+                    },
+                    error : function(result){ 
+                        alert("读取数据错误");
+                    },
+                    // complete:function (XMLHttpRequest, status) {
+                    //     // alert("加载完成")
+                    // }
+                });
+            };     
+
+
+            function putSum() {
+                // 判断是否检查指标
+                
+                for (m in mediumTotal) {
+                    // 获取总数
+                    total = mediumTotal[m]['sum']
+                    $("#"+m).text(total);
+                }
+        
+            }
+
+            // 设置平台数据
+            function putPlat(isChecked) {
+                // 循环result
+                product = ["product"]
+                if (isChecked) {
+                    platSource = [], platSeries = [], platChoiceList = []
+                    // 设置source头
+                    for (m in mediumPlat) {
+                        title = $("input[class=platCount][name='"+m+"']").attr("title")
+                        // 检查
+                        checked = $("input[class=platCount][name='"+m+"']").is(':checked')
+                        if (checked) {
+                            product.push(title)
+                            platChoiceList.push(m)
+                        }
+                    }
+                    platSource.push(product)
+                    // 循环平台列表
+                    for (p in platMap) {
+                        title = platMap[p]
+                        pid = p
+                        singleList = [title]
+                        for (m in mediumPlat) {
+                            pids = mediumPlat[m]['pids']
+                            // 检查
+                            checked = $("input[class=platCount][name='"+m+"']").is(':checked')
+                            if (checked) {        
+                                for (i in pids) {
+                                    if (i == pid) {
+                                        singleList.push(pids[i])
+                                    }
+                                }
+                            }
+                        }
+                        platSource.push(singleList)
+
+                    }
+                    // 根据source设置series
+                    for (i=1;i < platSource[0].length;i++) {
+                        platSeries.push({type: 'bar'})
+                    }
+                } else {
+                    platSource = [], platSeries = []
+                    // 设置source头
+                    for (m in mediumPlat) {
+                        title = $("input[class=platCount][name='"+m+"']").attr("title")
+                        for (d in platChoiceList) {
+                            if (platChoiceList[d] == m) {
+                                product.push(title)
+                            }
+                        }    
+                    }
+                    platSource.push(product)
+                    // 循环平台列表
+                    for (p in platMap) {
+                        title = platMap[p]
+                        pid = p
+                        singleList = [title]
+                        for (m in mediumPlat) {
+                            pids = mediumPlat[m]['pids']
+                            for (d in platChoiceList) {
+                                if (platChoiceList[d] == m) {
+                                    for (i in pids) {
+                                        if (i == pid) {
+                                            singleList.push(pids[i])
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        platSource.push(singleList)
+                    }
+                    // 根据source设置series
+                    for (i=1;i < platSource[0].length;i++) {
+                        platSeries.push({type: 'bar'})
+                    }
+                }
+
+            }
+
+            // 设置领域数据
+            function putCate(isChecked) {
+                // 循环result
+                product = ["product"]
+                if (isChecked) {
+                    cateSource = [], cateSeries = [], cateChoiceList = []
+                    // 设置source头
+                    for (m in mediumCategory) {
+                        title = $("input[class=cateCount][name='"+m+"']").attr("title")
+                        // 检查
+                        checked = $("input[class=cateCount][name='"+m+"']").is(':checked')
+                        if (checked) {
+                            product.push(title)
+                            cateChoiceList.push(m)
+                        }
+                    }
+                    cateSource.push(product)
+                    // 循环平台列表
+                    for (p in categoryMap) {
+                        title = categoryMap[p]
+                        pid = p
+                        singleList = [title]
+                        for (m in mediumCategory) {
+                            pids = mediumCategory[m]['fids']
+                            // 检查
+                            checked = $("input[class=cateCount][name='"+m+"']").is(':checked')
+                            if (checked) {        
+                                for (i in pids) {
+                                    if (i == pid) {
+                                        singleList.push(pids[i])
+                                    }
+                                }
+                            }
+                        }
+                        cateSource.push(singleList)
+
+                    }
+                    // 根据source设置series
+                    for (i=1;i < cateSource[0].length;i++) {
+                        cateSeries.push({type: 'bar'})
+                    }
+                } else {
+                    cateSource = [], cateSeries = []
+                    // 设置source头
+                    for (m in mediumCategory) {
+                        title = $("input[class=cateCount][name='"+m+"']").attr("title")
+                        for (d in cateChoiceList) {
+                            if (cateChoiceList[d] == m) {
+                                product.push(title)
+                            }
+                        }    
+                    }
+                    cateSource.push(product)
+                    // 循环平台列表
+                    for (p in categoryMap) {
+                        title = categoryMap[p]
+                        pid = p
+                        singleList = [title]
+                        for (m in mediumCategory) {
+                            pids = mediumCategory[m]['fids']
+                            for (d in cateChoiceList) {
+                                if (cateChoiceList[d] == m) {
+                                    for (i in pids) {
+                                        if (i == pid) {
+                                            singleList.push(pids[i])
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        cateSource.push(singleList)
+                    }
+                    // 根据source设置series
+                    for (i=1;i < cateSource[0].length;i++) {
+                        cateSeries.push({type: 'bar'})
+                    }
+                }
+
+            }
+
+
+            function putTable(isChecked) {
+
+                tableData = [], colsData = [], addItem = []
+                colsData.push({field:'category', title:'领域'})
+
+                if (isChecked) {
+                    tableChoiceList = []
+                    
+                    $("input[class=tableCount]").each(function(i,item){
+                        checked = $("input[class=tableCount]").eq(i).is(':checked')
+                        if (checked) {
+                            check_name = $("input[class=tableCount]").eq(i).attr('name');
+                            tableChoiceList.push(check_name)
+                        }               
+                    });
+
+                } 
+
+                for (t in tableChoiceList ){
+
+                    check_title = $("input[class=tableCount][name='"+tableChoiceList[t]+"']").attr("title")
+                    colsData.push({field: tableChoiceList[t], title: check_title})
+                }
+                if (tableChoiceList.length > 0) {
+                    for (c in categoryMap) {
+                        cateMap = {"category": categoryMap[c]}
+                        for (i in tableChoiceList) {
+                            total = categoryPlat[tableChoiceList[i]]['fids'][c]
+                            cateMap[tableChoiceList[i]] = total
+                        }
+                    
+                        tableData.push(cateMap)
+                    }
+                }
+            
+
+                layui.use('table', function(){
+                    var table = layui.table;
+
+                    var $ = layui.jquery, layer = layui.layer, form = layui.form;
+                            
+
+                    table.render({
+                        elem: '#dataTable', id: 'exportTable', toolbar: '#toolbar', //开启头部工具栏，并为其绑定左侧模板
+                        defaultToolbar: ['exports', 'filter',
+                            {title: '全局设置',layEvent: 'setting',icon: 'layui-icon-set-fill'}
+                        ], 
+                        title: '媒介数据表', 
+                        cols: [colsData],
+                        data: tableData, page: true, limit: 10, totalRow: false //开启合计行
+                    });
+
+
+                    //监听头部工具栏事件
+                    table.on("toolbar(dataTable)",function(obj){
+                    switch(obj.event){
+                        case 'LAYTABLE_EXPORT':
+                            $("[data-type='csv']").hide();
+                            $("[data-type='xls']").click(
+                                table.exportFile('exportTable', tableData, 'xls')
+                            )
+                            // $("[data-type='csv']").on("click",()=>{
+                            //     table.exportFile('exportTable', tableData, 'xls');
+                            // });
+                            break;
+
+                        case 'setting':
+                            // 弹出层
+
+                            layer.open({
+                                type: 1, title: "所有指标", closeBtn: 2, area: ['50%','400px'], 
+                                shade: 0.8, id: 'table_choice', btn: ['确认'],
+                                yes: function(index, layero) {
+                                    putTable(true);
+                                    layer.close(index);
+                                },
+                                btnAlign: 'c', anim: 1, moveType: 1, content:$("#table_check").html(),
+                                success: function(layero){
+                                    form.render(null, "tableForm"); // 刷新checkbox开关渲染(否则开关按钮会不显示)
+                                }
+                            });
+
+                        }
+
+                    });
+
+                    $(".layui-table thead span").each(function(i, item){
+                        $(".layui-table thead span").eq(i).mouseover(function() {
+                            hover_text = $(".layui-table thead span").eq(i).text()
+                            layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                        });
+                    });
+
+                    $(".layui-table tbody div").each(function(i, item){
+                        $(".layui-table tbody div").eq(i).mouseover(function() {
+                            hover_text = $(".layui-table tbody div").eq(i).text()
+                            layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                        });
+                    });
+                    
+                });
+
+            };
+
+            // 弹出层
+            layui.use('layer', function(){
+                var $ = layui.jquery, layer = layui.layer, form = layui.form;
+                //触发事件
+                var active = {
+                    notice: function(){
+                        //示范一个公告层
+                        layer.open({
+                            type: 1, title: "数据说明", closeBtn: false, area: ['50%','400px'], 
+                            shade: 0.8, id: 'lay_notice', //设定一个id，防止重复弹出
+                            btn: ['已知晓'], btnAlign: 'c', moveType: 1, //拖拽模式，0或者1
+                            content:$("#notice").html(), 
+                            success: function(layero){
+                            }
+                        });
+                    },
+                    plat_choice: function(){
+                        layer.open({
+                            type: 1, title: "所有指标", closeBtn: 2, area: ['50%','400px'], 
+                            shade: 0.8, id: 'plat_choice', btn: ['确认'],
+                            yes: function(index, layero) {
+                                putPlat(true);
+                                ChartView();
+                                layer.close(index);
+                            },
+                            btnAlign: 'c', anim: 1, moveType: 1, content:$("#plat_check").html(),
+                            success: function(layero){
+                                form.render(null, "platForm"); // 刷新checkbox开关渲染(否则开关按钮会不显示)
+                            }
+                        });
+                    },
+                    cate_choice: function(){
+                        layer.open({
+                            type: 1, title: "所有指标", closeBtn: 2, area: ['50%','400px'], 
+                            shade: 0.8, id: 'cate_choice', btn: ['确认'],
+                            yes: function(index, layero) {
+                                putCate(true);
+                                ChartView();
+                                layer.close(index);
+                            },
+                            btnAlign: 'c', anim: 1, moveType: 1, content:$("#cate_check").html(),
+                            success: function(layero){
+                                form.render(null, "cateForm"); // 刷新checkbox开关渲染(否则开关按钮会不显示)
+                            }
+                        });
+                    }
+                };
+              
+                $('#notice_button').on('click', function(){
+                    var othis = $(this), method = othis.data('method');
+                    active[method] ? active[method].call(this, othis) : '';
+                });
+                $('#plat_button').on('click', function(){
+                    var othis = $(this), method = othis.data('method');
+                    active[method] ? active[method].call(this, othis) : '';
+                });
+                $('#cate_button').on('click', function(){
+                    var othis = $(this), method = othis.data('method');
+                    active[method] ? active[method].call(this, othis) : '';
+                });
+
+                form.on("select(medium)", function(data){
+                    parent_value = $("select[name='source']").parent()
+                    select_title = data.elem.selectedOptions[0].title
+                    layer.tips("<span class=\"layui-font-18\">"+select_title+"</span", parent_value, {tips: [4,"#0099CC"]})
+                    
+                    getData();
+                    putSum();
+                    putPlat(false);
+                    putCate(false)
+                    ChartView();
+                    putTable(false);
+                    // alert(data.value); // 获取选中的值
+                });
+
+                form.on("select(category)", function(data){
+                    parent_value = $("select[name='plat']").parent()
+                    select_title = data.elem.selectedOptions[0].title
+                    layer.tips("<span class=\"layui-font-18\">"+select_title+"</span", parent_value, {tips: [4,"#0099CC"]})
+
+                    getData();
+                    putSum();
+                    putCate(false);
+                    ChartView();
+                    // alert(data.value); // 获取选中的值
+                });
+
+                $("select[name='source']").next().find(" dd").each(function(i, item){
+                    $("select[name='source']").next().find(" dd").eq(i).mouseover(function() {
+                        hover_text = $("select[name='source'] option").eq(i).attr("title")
+                        layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                    });
+                });
+
+                $("select[name='plat']").next().find(" dd").each(function(i, item){
+                    $("select[name='plat']").next().find(" dd").eq(i).mouseover(function() {
+                        hover_text = $("select[name='plat'] option").eq(i).attr("title")
+                        layer.tips("<span class=\"layui-font-18\">"+hover_text+"</span", this, {tips: 1, time: 1000})
+                    });
+                });
+
+            }); 
+    
+            function ChartView() {
+                // 基于准备好的dom，初始化echarts实例
+                var platChart = echarts.init(document.getElementById('platChart'));
+                var cateChart = echarts.init(document.getElementById('cateChart'));
+                
+                var platOption = {
+                    title: {text: '账号在各平台分布情况', left: 'center'}, 
+                    legend: {orient: 'horizontal', bottom: '5%', right: 'auto'}, 
+                    tooltip: {},
+                    grid: {left: '2%', right: '2%', bottom: '15%', containLabel: true},
+                    dataset: {source: platSource}, xAxis: {type: 'category'}, yAxis: {},
+                    dataZoom: [{type: 'slider', height: 10, bottom: '2%'}], 
+                    series: platSeries,
+                    aria: {enabled: true, decal: {show: true}}
+                };
+
+                var cateOption = {
+                    title: {text: '账号在各领域分布情况', left: 'center'}, 
+                    legend: {orient: 'horizontal', bottom: '5%', right: 'auto'}, 
+                    tooltip: {},
+                    grid: {left: '2%', right: '2%', bottom: '15%', containLabel: true},
+                    dataset: {source: cateSource}, xAxis: {type: 'category'}, yAxis: {},
+                    dataZoom: [{type: 'slider', height: 10, bottom: '2%'}], 
+                    series: cateSeries,
+                    aria: {enabled: true, decal: {show: true}}
+                };
+    
+                // 使用刚指定的配置项和数据显示图表。
+                platChart.setOption(platOption, true);
+                cateChart.setOption(cateOption, true);
+            }
+
+            putSelect()
+            getNow();
+            getData();
+            putSum();
+            putPlat(false);
+            putCate(false);
+            ChartView();
+            putTable(false);
+        </script>
+
+    </body>
+</html>

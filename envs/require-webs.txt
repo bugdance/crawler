@@ -1,0 +1,21 @@
+################## base ###################
+requests[socks]     # urllib3 pysocks
+lxml
+cssselect
+pyyaml
+jsonpath 
+demjson
+validators
+pydes
+pycryptodome
+################## webs ###################
+gunicorn 
+gevent
+mysqlclient
+flask_sqlalchemy    # sqlalchemy
+flask_pymongo       # pymongo
+flask_redis         # redis
+flask_apscheduler   # apscheduler
+django-simpleui     # django pytz
+django-celery-beat  # celery python-crontab python-dateutil django-timezone-field
+django-comment-migrate
