@@ -1,0 +1,105 @@
+{%extends "bootstrap/base.html"%}
+
+{% block title %}{{ title_name }}{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script language="JavaScript">
+function refresh()
+{
+   window.location.reload();
+}
+setTimeout('refresh()',30000); //指定30秒刷新一次
+</script>
+{% endblock %}
+
+{%block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle"
+            data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/detail">Detail</a>
+            <a class="navbar-brand" href="/content">Content</a>
+            <a class="navbar-brand" href="/">Home</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">最新写入时间 {{ new_time }}</span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search">比对上次时间 {{ old_time }}</span>
+        </button>
+    </div>
+    <div class="table-responsive">
+        {% for all_k, all_v in all_content.items() %}
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    <button type="button" class="btn btn-default">
+                        <span class="glyphicon glyphicon-plus"></span>{{ all_k }}
+                    </button>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for i in all_v %}
+                <tr>
+                    <th>{{ i['type'] }}</th>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <button type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-plus"></span> 新比旧多
+                                    </button>
+                                </th>
+                                <th>
+                                    <button type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-minus"></span> 新比旧少
+                                    </button>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for j in i['more'] %}
+                                <tr>
+                                    <td>
+                                        {{ j }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            {% for j in i['less'] %}
+                                <tr>
+                                    <td>
+                                        {{ j }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

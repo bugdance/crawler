@@ -1,0 +1,66 @@
+{%extends "bootstrap/base.html"%}
+
+{% block title %}{{ title_name }}{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script language="JavaScript">
+function refresh()
+{
+   window.location.reload();
+}
+setTimeout('refresh()',30000); //指定30秒刷新一次
+</script>
+{% endblock %}
+
+{%block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle"
+            data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+             <a class="navbar-brand" href="/content">Content</a>
+            <a class="navbar-brand" href="/">Home</a>
+            <a class="navbar-brand" href="/detail">Detail</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">最新写入时间 {{ new_time }}</span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search">比对上次时间 {{ old_time }}</span>
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    <button type="button" class="btn btn-default">
+                        <span class="glyphicon glyphicon-plus"></span> 变化地址列表
+                    </button>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for k, v in all_url.items() %}
+            <tr>
+                <td><a href="{{ url_for('static', filename=v) }}">{{ k }}</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

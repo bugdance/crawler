@@ -1,0 +1,172 @@
+{%extends "bootstrap/base.html"%}
+
+{% block title %}{{ title_name }}{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script language="JavaScript">
+function refresh()
+{
+   window.location.reload();
+}
+setTimeout('refresh()',8000); //指定8秒刷新一次
+</script>
+<script src={{url_for('static', filename='js/highcharts.js')}}></script>
+<script src={{url_for('static', filename='js/jquery.js')}}></script>
+    <script language="JavaScript">
+        var chart = Highcharts.chart('container', {
+            chart: {
+                zoomType: 'xy'
+            },
+            title: {
+                text: '无头下单成功率'
+            },
+            subtitle: {
+                text: '数据来源: pyleo'
+            },
+            xAxis: [{
+                categories: {{ all_times|safe }},
+                crosshair: true
+            }],
+            yAxis: [{ // Primary yAxis
+                labels: {
+                    format: '{value} n',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: '订单数目',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }, { // Secondary yAxis
+                title: {
+                    text: '占座成功率',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    format: '{value} %',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            legend: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            series: [{
+                name: '占座成功率',
+                type: 'column',
+                yAxis: 1,
+                data: {{ all_rate|safe }},
+                tooltip: {
+                    valueSuffix: ' %'
+                }
+            }, {
+                name: '总订单数量',
+                type: 'spline',
+                data: {{ all_sum|safe }},
+                tooltip: {
+                    valueSuffix: ' n'
+                }
+            }, {
+                name: '占座成功数量',
+                type: 'spline',
+                data: {{ all_tickets|safe }},
+                tooltip: {
+                    valueSuffix: ' n'
+                }
+            }]
+        });
+    </script>
+
+{% endblock %}
+
+{%block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle"
+            data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Home</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">订单总数 {{ sum_count }}</span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">平均耗时 {{ average_time }} 秒</span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">响应成功率 {{ success_count }} ({{ success_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">占座成功率 {{ tickets_count }} ({{ tickets_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">订单失败率 {{ failure_count }} ({{ failure_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">是否多了失败原因 {{ is_more }} </span>
+        </button>
+    </div>
+    <div class="page-header">
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">无票率 {{ none_count }} ({{ none_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">排队率 {{ wait_count }} ({{ wait_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">核验率 {{ verification_count }} ({{ verification_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">冲突率 {{ conflict_count }} ({{ conflict_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">限制率 {{ restrict_count }} ({{ restrict_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">初始率 {{ init_count }} ({{ init_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">比对率 {{ comparison_count }} ({{ comparison_rate }}%) </span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">超时率 {{ timeout_count }} ({{ timeout_rate }}%) </span>
+        </button>
+    </div>
+        <div class="page-header">
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">可用机器 {{ machine_count }} 台</span>
+        </button>
+        <button type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-pencil">可用代理 {{ proxy_count }} 个</span>
+        </button>
+    </div>
+    <div id="container">
+    </div>
+</div>
+{% endblock %}
+
