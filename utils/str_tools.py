@@ -1,9 +1,9 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 @@..> str tools
 @@..> package utils
-@@..> author pyLeo <lihao@372163.com>
+@@..> author pyleo <lihao@372163.com>
 """
 #######################################################################################
 # @@..> base import
