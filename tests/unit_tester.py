@@ -12,35 +12,54 @@ sys.path.append('..')
 # @@..> base import
 from utils.base_tools import BaseAct, LogAct
 # from utils.auto_tools import AutoAct
-from utils.data_tools import DataAct
-from utils.json_tools import JsonAct
-from utils.net_tools import NetAct
-from utils.pool_tools import PoolAct
-from utils.num_tools import NumAct, TimeAct
-from utils.str_tools import StrAct, UrlAct, DomAct, EncryptAct
+# from utils.data_tools import DataAct
+# from utils.json_tools import JsonAct
+# from utils.net_tools import NetAct
+# from utils.pool_tools import PoolAct
+# from utils.num_tools import NumAct, TimeAct
+# from utils.str_tools import StrAct, UrlAct, DomAct, EncryptAct
 # @@..> import data
 from data_tester import data
-import pandas as pd
+# import pandas as pd
 
 
 
 
 if __name__ == '__main__':
 
+
+    # re.finditer
+    # re.search
+    # re.findall
+    # re.compile
+    # re.split
+    # re.sub
+    from utils.str_tools import StrAct
+
+    a = "sd_fsdf"
+
     logger, handler = LogAct.init_log()
 
     # TimeAct.logger = logger
-    # StrAct.logger = logger
+    StrAct.logger = logger
     # JsonAct.logger = logger
     
+    # b = StrAct.regex_gen(a, "A")
+    import re
+    comp_regex = re.compile("a", re.S)
+    source_data = comp_regex.findall(a)
+    print(source_data)
+
+
+
     # slide = DataAct()
     # slide.logger = logger
     
 
 
-    pool = PoolAct()
-    pool.logger = logger
-    pool.init_app()
+    # pool = PoolAct()
+    # pool.logger = logger
+    # pool.init_app()
     
     # source = pool.init_mongo("mongodb://127.0.0.1:27017/source")
     

@@ -9,7 +9,7 @@
 # @@..> base import
 from typing import Generator
 # @@..> StrAct
-from re import findall, S as ReS, compile as ReCompile, error as ReError
+import re
 from gzip import GzipFile
 from io import BytesIO
 from decimal import Decimal
@@ -37,34 +37,61 @@ class StrAct:
     logger: any = False
 
     @classmethod
-    def parse_regex(cls, source_data: str = "", regex_syntax: str = "") -> Generator:
+    def regex_find(cls, source_data: str = "", regex_syntax: str = "",
+                   is_first: bool = True) -> str:
         """
-        [regex match the string]
+        [search a string]
 
         Args:
             source_data (str, optional): [nothing.]. Defaults to nothing.
             regex_syntax (str, optional): [nothing.]. Defaults to nothing.
 
         Returns:
-            Generator: [nothing.]
+            str: [nothing.]
         """
         if isinstance(source_data, str) and isinstance(regex_syntax, str):
             try:
-                source_data = findall(regex_syntax, source_data, ReS)
+                comp_regex = re.compile(regex_syntax, re.S)
+                source_data = comp_regex.findall(source_data)
                 if source_data:
                     for i in source_data:
                         yield i
                 else:
                     return (x for x in range(0))
-            except ReError:
-                cls.logger.info(f"解析Regex对象失败(*>﹏<*)【{regex_syntax}】")
-                return (x for x in range(0))
+                return source_data
+            except re.error:
+                cls.logger.info(f"正则匹配失败 >___< {regex_syntax}")
+                return ""
         else:
-            cls.logger.info("解析Regex对象失败(*>﹏<*)【type】")
-            return (x for x in range(0))
+            cls.logger.info("正则匹配失败 >___< args")
+            return ""
 
     @classmethod
-    def parse_replace(cls, source_data: str = "", regex_syntax: str = "",
+    def regex_split(cls, source_data: str = "", regex_syntax: str = "") -> list:
+        """
+        [split a string to list]
+
+        Args:
+            source_data (str, optional): [nothing.]. Defaults to nothing.
+            regex_syntax (str, optional): [nothing.]. Defaults to nothing.
+
+        Returns:
+            str: [nothing.]
+        """
+        if isinstance(source_data, str) and isinstance(regex_syntax, str):
+            try:
+                comp_regex = re.compile(regex_syntax, re.S)
+                source_data = comp_regex.split(source_data)
+                return source_data
+            except re.error:
+                cls.logger.info(f"正则分割失败 >___< {regex_syntax}")
+                return []
+        else:
+            cls.logger.info("正则分割失败 >___< args")
+            return []
+
+    @classmethod
+    def regex_replace(cls, source_data: str = "", regex_syntax: str = "",
                       replaced_string: str = "") -> str:
         """
         [replace the string]
@@ -80,15 +107,39 @@ class StrAct:
         if isinstance(source_data, str) and isinstance(regex_syntax, str) \
                 and isinstance(replaced_string, str):
             try:
-                comp_regex = ReCompile(regex_syntax, ReS)
+                comp_regex = re.compile(regex_syntax, re.S)
                 source_data = comp_regex.sub(replaced_string, source_data)
                 return source_data
-            except ReError:
-                cls.logger.info(f"解析Replace对象失败(*>﹏<*)【{regex_syntax}】")
+            except re.error:
+                cls.logger.info(f"正则替换失败 >___< {regex_syntax}")
                 return ""
         else:
-            cls.logger.info("解析Replace对象失败(*>﹏<*)【type】")
+            cls.logger.info("正则替换失败 >___< args")
             return ""
+
+    @classmethod
+    def regex_gen(cls, source_data: str = "", regex_syntax: str = "") -> Generator:
+        """
+        [regex match the string]
+
+        Args:
+            source_data (str, optional): [nothing.]. Defaults to nothing.
+            regex_syntax (str, optional): [nothing.]. Defaults to nothing.
+
+        Returns:
+            Generator: [nothing.]
+        """
+        if isinstance(source_data, str) and isinstance(regex_syntax, str):
+            try:
+                comp_regex = re.compile(regex_syntax, re.S)
+                source_gen = comp_regex.finditer(source_data)
+                return source_gen
+            except re.error:
+                cls.logger.info(f"正则匹配失败 >___< {regex_syntax}")
+                return (x for x in range(0))
+        else:
+            cls.logger.info("正则匹配失败 >___< args")
+            return (x for x in range(0))
 
     @classmethod
     def format_clear(cls, source_data: str = "", is_separate: bool = False) -> str:
