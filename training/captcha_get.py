@@ -29,3 +29,6 @@ def aa():
 aa()
 
 
+def asd():
+    print()
+
